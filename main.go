@@ -48,7 +48,7 @@ func (c *Controller) run(threadiness int, stopCh <-chan struct{}) error {
 // return rest config, if path not specified assume in cluster config
 func getClientConfig(kubeconfig string) (*rest.Config, error) {
 	if kubeconfig != "" {
-		return clientcmd.BuildConfigFromFlags("", kubeconfig)
+		return clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	}
 	return rest.InClusterConfig()
 }
@@ -66,7 +66,8 @@ func newController(
 
 
 func main() {
-	// pass kubeconfig like: -kubeconfig=$HOME/.kube/config
+	// pass kubeconfig like: -kubeconf=$HOME/.kube/config
+	// incluster config: -kubeconf=""
 	kubeconf := flag.String("kubeconf", "admin.conf", "Path to a kube config. Only required if out-of-cluster.")
 	flag.Parse()
 
