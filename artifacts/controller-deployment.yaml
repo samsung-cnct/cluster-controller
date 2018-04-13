@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-controller-deployment
+  labels:
+    app: cluster-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cluster-controller
+  template:
+    metadata:
+      labels:
+        app: cluster-controller
+    spec:
+      containers:
+      - name: cluster-controller
+        image: leahnp/controller-test
+        ports:
+        - containerPort: 80
