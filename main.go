@@ -10,8 +10,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 
-	// TODO build our own cluster-controller informers and clientset
+	// TODO (CI related) update signal package to our own build
+	// currently this should work becuase there is nothing specific to our CRD in /pkg/signals
 	"k8s.io/sample-controller/pkg/signals"
+	// "github.com/samsung-cnct/cluster-controller/pkg/signals"
 )
 
 // Controller object
@@ -73,7 +75,7 @@ func main() {
 
 	config, err := getClientConfig(*kubeconf)
 	if err != nil {
-		panic(err.Error())
+		glog.Fatalf("Error loading cluster config: %s", err.Error())
 	}
 
 	// set up signals so we handle the first shutdown signal gracefully
