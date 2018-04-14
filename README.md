@@ -13,12 +13,12 @@ This custom controller manages a custom resource of type `Cluster`.
 Creating the KrakenCluster CRD object that defines the schema of a kraken cluster
 and the resource to be consumed by the controller:
 ```sh
-create -f crd/KrakenClusterCRD.yaml
+kubectl create -f crd/KrakenClusterCRD.yaml
 ```
 
 You may then create a sample resource by running
 ```sh
-create-f crd/test-cluster.yaml
+kubectl create-f crd/test-cluster.yaml
 ```
 
 ## Running
