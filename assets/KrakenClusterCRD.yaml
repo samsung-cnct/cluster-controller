@@ -17,12 +17,12 @@ spec:
         properties:
           spec:
             required:
-            - customerId
+            - customerID
             - cloudProvider
             - provisioner
             - cluster
             properties:
-              customerId:
+              customerID:
                 type: string
               cluster:
                 type: object
