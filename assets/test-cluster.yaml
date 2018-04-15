@@ -4,28 +4,29 @@ metadata:
   name: my-test-cluster
 # TODO consider how much cluster detail to have here and how much to have as blob given by a manifest
 spec:
-  customerId: myCustomerId
+  customerID: myCustomerID
   cloudProvider:
     name: aws
   provisioner:
     name: juju
   cluster:
     clusterName: my-test-cluster
-    workers:
-      size: 1
-      os: ubuntu:16:04
-      machineType: m4.xlarge
-      publicIPs: false
-    masters:
-      size: 1
-      os: ubuntu:16:04
-      machineType: m4.xlarge
-      publicIPs: false
-    etcd:
-      size: 1
-      os: ubuntu:16:04
-      machineType: m4.xlarge
-      publicIPs: false
+    nodePools:
+      - name: worker
+        publicIPs: false
+        size: 1
+        machineType: m4.xlarge
+        os: ubuntu:16:04
+      - name: master
+        size: 1
+        publicIPs: false
+        machineType: m4.xlarge
+        os: ubuntu:16:04
+      - name: etcd
+        size: 3
+        publicIPs: false
+        machineType: m2.medium
+        os: ubuntu:16:04
     fabric:
       name: canal
 

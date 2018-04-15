@@ -28,61 +28,31 @@ spec:
                 type: object
                 required:
                 - clusterName
-                - workers
-                - masters
-                - etcd
                 - fabric
+                - nodePools
                 properties:
                   clusterName:
                     type: string
-                  workers:
-                    type: object
-                    required:
-                    - size
-                    - os
-                    - machineType
-                    - publicIPs
-                    properties:
-                      size:
-                        type: integer
-                      os:
-                        type: string
-                      machineType:
-                        type: string
-                      publicIps:
-                        type: boolean
-                  masters:
-                    type: object
-                    required:
-                    - size
-                    - os
-                    - machineType
-                    - publicIPs
-                    properties:
-                      size:
-                        type: integer
-                      os:
-                        type: string
-                      machineType:
-                        type: string
-                      publicIps:
-                        type: boolean
-                  etcd:
-                    type: object
-                    required:
-                    - size
-                    - os
-                    - machineType
-                    - publicIPs
-                    properties:
-                      size:
-                        type: integer
-                      os:
-                        type: string
-                      machineType:
-                        type: string
-                      publicIps:
-                        type: boolean
+                  nodePools:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - name
+                      - size
+                      - machineType
+                      - os
+                      properties:
+                        name:
+                          type: string
+                        size:
+                          type: integer
+                        publicIPs:
+                          type: boolean
+                        machineType:
+                          type: string
+                        os:
+                          type: string
                   fabric:
                     type: object
                     required:
