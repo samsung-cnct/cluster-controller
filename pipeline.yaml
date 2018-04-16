@@ -2,11 +2,18 @@ type: chart
 
 # configs:
 
-test:
-  beforeScript:
-    script: scripts/beforeTest.sh
-    shell: /usr/local/bin/bash
-prod: 
-  doDeploy: none
+# test:
+#   beforeScript:
+#     script: scripts/beforeTest.sh
+#     shell: /usr/local/bin/bash
+# prod: 
+#   doDeploy: none
+
+stage: 
+
+    tests:
+      - image: bash:latest
+        script: scripts/stageTest.sh
+        shell: /bin/bash
 
  
