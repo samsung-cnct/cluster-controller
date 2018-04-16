@@ -1,19 +1,47 @@
 type: chart
-
-# configs:
-
-# test:
-#   beforeScript:
-#     script: scripts/beforeTest.sh
-#     shell: /usr/local/bin/bash
-# prod: 
-#   doDeploy: none
-
-stage: 
-
-    tests:
-      - image: bash:latest
-        script: scripts/stageTest.sh
-        shell: /bin/bash
-
- 
+# beforeScript:
+#   script: scripts/globalBefore.sh
+# afterScript:
+#   image: alpine:latest
+#   script: scripts/globalAfter.sh
+# slack:
+#   channel: #team-ref-stack
+rootfs:
+  - image: samsung_cnct/cluster-controller
+    # buildArgs: 
+    #   TEST_ARG: "something not so default"
+    context: cluster-controller
+    chart: cluster-controller
+    value: images.image
+configs:
+  - chart: cluster-controller
+    timeout: 600
+    retries: 2
+    release: cluster-controller
+    test: 
+      tests:
+        - image: bash:latest
+          script: scripts/stageTest.sh
+          shell: /bin/bash
+test:
+  beforeScript:
+    script: scripts/testBefore.sh
+    shell: /bin/bash
+  # afterScript:
+  #   image: alpine:latest
+  #   script: scripts/testAfter.sh
+stage:
+  # beforeScript:
+  #   script: scripts/stageBefore.sh
+  #   shell: /bin/bash
+  # afterScript:
+  #   image: alpine:latest
+  #   script: scripts/stageAfter.sh    
+prod: 
+  # beforeScript:
+  #   script: scripts/prodBefore.sh
+  #   shell: /bin/bash
+  # afterScript:
+  #   image: alpine:latest
+  #   script: scripts/prodAfter.sh 
+  doDeploy: versionfile

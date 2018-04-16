@@ -1,1 +1,1 @@
-echo "What up cluster-controller CI?"
+echo "What up before test?"
