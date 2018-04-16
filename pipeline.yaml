@@ -1,0 +1,12 @@
+type: chart
+
+# configs:
+
+test:
+  beforeScript:
+    script: scripts/beforeTest.sh
+    shell: /usr/local/bin/bash
+prod: 
+  doDeploy: none
+
+ 
