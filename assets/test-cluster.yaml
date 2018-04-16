@@ -1,0 +1,32 @@
+apiVersion: "samsung-cnct.com/v1"
+kind: KrakenCluster
+metadata:
+  name: my-test-cluster
+# TODO consider how much cluster detail to have here and how much to have as blob given by a manifest
+spec:
+  customerID: myCustomerID
+  cloudProvider:
+    name: aws
+  provisioner:
+    name: juju
+  cluster:
+    clusterName: my-test-cluster
+    nodePools:
+      - name: worker
+        publicIPs: false
+        size: 1
+        machineType: m4.xlarge
+        os: ubuntu:16:04
+      - name: master
+        size: 1
+        publicIPs: false
+        machineType: m4.xlarge
+        os: ubuntu:16:04
+      - name: etcd
+        size: 3
+        publicIPs: false
+        machineType: m2.medium
+        os: ubuntu:16:04
+    fabric:
+      name: canal
+
