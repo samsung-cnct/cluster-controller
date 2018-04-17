@@ -1,18 +1,11 @@
 type: chart
-# beforeScript:
-#   script: scripts/globalBefore.sh
-# afterScript:
-#   image: alpine:latest
-#   script: scripts/globalAfter.sh
 # slack:
 #   channel: #team-ref-stack
 rootfs:
   - image: samsung_cnct/cluster-controller
-    # buildArgs: 
-    #   TEST_ARG: "something not so default"
     context: cluster-controller
     chart: cluster-controller
-    value: images.image
+    value: images.repository
 configs:
   - chart: cluster-controller
     timeout: 600
@@ -24,24 +17,7 @@ configs:
           script: scripts/stageTest.sh
           shell: /bin/bash
 test:
-  beforeScript:
-    script: scripts/testBefore.sh
-    shell: /bin/bash
-  # afterScript:
-  #   image: alpine:latest
-  #   script: scripts/testAfter.sh
-stage:
-  # beforeScript:
-  #   script: scripts/stageBefore.sh
-  #   shell: /bin/bash
-  # afterScript:
-  #   image: alpine:latest
-  #   script: scripts/stageAfter.sh    
+  # TODO - add test for verify codegen
+stage:  
 prod: 
-  # beforeScript:
-  #   script: scripts/prodBefore.sh
-  #   shell: /bin/bash
-  # afterScript:
-  #   image: alpine:latest
-  #   script: scripts/prodAfter.sh 
-  doDeploy: versionfile
+  doDeploy: none
