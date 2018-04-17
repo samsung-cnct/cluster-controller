@@ -17,7 +17,7 @@ configs:
           script: scripts/stageTest.sh
           shell: /bin/bash
 test:
-  # TODO - add test for verify codegen
+  # TODO: add test for verify codegen
 stage:  
 prod: 
   doDeploy: none
