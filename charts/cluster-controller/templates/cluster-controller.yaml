@@ -6,14 +6,14 @@ metadata:
     app: {{ template "name" . }}
     chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    # heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  template:
-    metadata:
-      labels:
-        app: {{ template "name" . }}
-        release: {{ .Release.Name }}
+  # template:
+  #   metadata:
+  #     labels:
+  #       app: {{ template "name" . }}
+  #       release: {{ .Release.Name }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
