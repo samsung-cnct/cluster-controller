@@ -1,12 +1,23 @@
 type: chart
-
-# configs:
-
+# slack:
+#   channel: #team-ref-stack
+rootfs:
+  - image: samsung_cnct/cluster-controller
+    context: cluster-controller
+    chart: cluster-controller
+    value: images.repository
+configs:
+  - chart: cluster-controller
+    timeout: 600
+    retries: 2
+    release: cluster-controller
+    test: 
+      tests:
+        - image: bash:latest
+          script: scripts/stageTest.sh
+          shell: /bin/bash
 test:
-  beforeScript:
-    script: scripts/beforeTest.sh
-    shell: /usr/local/bin/bash
+  # TODO: add test for verify codegen
+stage:  
 prod: 
   doDeploy: none
-
- 
