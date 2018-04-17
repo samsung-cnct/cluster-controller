@@ -1,1 +1,0 @@
-echo "What up test before?"
