@@ -9,9 +9,9 @@ metadata:
     # heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  # template:
-  #   metadata:
-  #     labels:
+  template:
+    metadata:
+      labels:
   #       app: {{ template "name" . }}
   #       release: {{ .Release.Name }}
     spec:
