@@ -93,7 +93,6 @@ func (c *Controller) runWorker() {
 // attempt to process it, by calling the syncHandler.
 func (c *Controller) processNextWorkItem() bool {
 	obj, shutdown := c.workqueue.Get()
-
 	if shutdown {
 		return false
 	}
@@ -185,7 +184,7 @@ func (c *Controller) updateKrakenClusterStatus(kc *samsungv1alpha1.KrakenCluster
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
 	kcCopy := kc.DeepCopy()
-	kcCopy.Status.Status = "UNKNOWN Right Now"
+	kcCopy.Status.Status = "UNKNOWN"
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
