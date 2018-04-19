@@ -1,4 +1,4 @@
-apiVersion: "samsung-cnct.com/v1"
+apiVersion: "samsung.cnct.com/v1alpha1"
 kind: KrakenCluster
 metadata:
   name: my-test-cluster

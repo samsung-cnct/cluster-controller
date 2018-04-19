@@ -18,12 +18,18 @@ kubectl create -f assets/KrakenClusterCRD.yaml
 
 You may then create a sample resource by running
 ```sh
-kubectl create-f assets/test-cluster.yaml
+kubectl create -f assets/test-cluster.yaml
 ```
 
 ## Running
 
 ```sh
 # assumes you have a working kubeconfig, not required if operating in-cluster
-$ go run *.go -kubeconfig=$HOME/.kube/config
+$ go run *.go -kubeconfig=$HOME/.kube/config -logtostderr=true
+```
+
+## Changing the Specification for KrakenCluster
+```sh
+vi pkg/apis/clustercontroller/v1alpha1/types.go
+hack/update-codegen.sh
 ```
