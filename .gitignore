@@ -1,3 +1,5 @@
+# Not including vendor files
+vendor/
 # Binaries for programs and plugins
 *.exe
 *.dll
