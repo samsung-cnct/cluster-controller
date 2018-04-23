@@ -6,6 +6,7 @@ rootfs:
     context: cluster-controller
     chart: cluster-controller
     value: images.repository
+    dockerContext: .
 configs:
   - chart: cluster-controller
     timeout: 600
