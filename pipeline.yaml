@@ -12,11 +12,6 @@ configs:
     timeout: 600
     retries: 2
     release: cluster-controller
-    test: 
-      tests:
-        - image: bash:latest
-          script: scripts/stageTest.sh
-          shell: /bin/bash
 test:
   # TODO: add test for verify codegen
 stage:  
