@@ -1,6 +1,4 @@
 type: chart
-# slack:
-#   channel: #team-ref-stack
 rootfs:
   - image: samsung_cnct/cluster-controller
     context: cluster-controller
