@@ -163,28 +163,94 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	// TODO Business log (to create/delete cluster).  Could be called here, but not sure how
-	// to distinguish Create from Delete yet, since examples show EventHandlers adding both cases to the workqueue.
+	// Calls to Business logic go here
 	clusterName := kc.Spec.Cluster.ClusterName
-	glog.Infof("Received KrakenCluster object for clusterName '%s'", clusterName)
+	glog.Infof("Received KrakenCluster object for clusterName %s", clusterName)
+	switch kc.Status.State {
+	case samsungv1alpha1.Unknown:
+		glog.Infof("Processing Unknown state for %s", clusterName)
+		// process create
 
-	// Finally, we update the status block of the KrakenCluster resource to reflect the
-	// current state of the world, when we know the cluster is ready.
-	err = c.updateKrakenClusterStatus(kc)
-	if err != nil {
-		return err
+		// add Finalizer so the resource won't be deleted immediately on delete kc
+		kc.SetFinalizers([]string{"samsung.cnct.com/finalizer"})
+
+		// update status with new state
+		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Creating, "Creating", nil)
+		if err != nil {
+			return err
+		}
+	case samsungv1alpha1.Creating:
+		glog.Infof("Processing Creating state for %s", clusterName)
+		// check for delete
+		if kc.DeletionTimestamp != nil {
+			glog.Infof("Processing Delete for %s", clusterName)
+			// process delete
+
+			// update status
+			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, "Deleting", nil)
+			if err != nil {
+				return err
+			}
+		} else {
+
+			// check status
+
+			// if ready then get kubeconfig and updateStatus state=CREATED, status= READY
+			kubeconf := "kubeconfig test"
+			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Created, "Ready", &kubeconf)
+			if err != nil {
+				return err
+			}
+		}
+	case samsungv1alpha1.Created:
+		glog.Infof("Processing Created state for '%s'", clusterName)
+		// check for delete
+		if kc.DeletionTimestamp != nil {
+			glog.Infof("Processing Delete for %s", clusterName)
+			// process delete
+
+			// update status
+			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, "Deleting", nil)
+			if err != nil {
+				return err
+			}
+		}
+	case samsungv1alpha1.Deleting:
+		glog.Infof("Processing Deleting state for '%s'", clusterName)
+		// check status
+
+		// if ready then get kubeconfig and updateStatus state=DELETED, status= Deleted
+		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, "Deleted", nil)
+		if err != nil {
+			return err
+		}
+	case samsungv1alpha1.Deleted:
+		glog.Infof("Processing Deleted state for %s", clusterName)
+		// remove the Finalizer field so the resource can be deleted
+		kc.SetFinalizers(nil)
+
+		// update status
+		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, "Deleted", nil)
+		if err != nil {
+			return err
+		}
 	}
 
 	c.recorder.Event(kc, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
 }
 
-func (c *Controller) updateKrakenClusterStatus(kc *samsungv1alpha1.KrakenCluster) error {
+func (c *Controller) updateKrakenClusterStatus(kc *samsungv1alpha1.KrakenCluster, state samsungv1alpha1.KrakenClusterState, status string, kubeconf *string) error {
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
 	kcCopy := kc.DeepCopy()
-	kcCopy.Status.Status = "UNKNOWN"
+	kcCopy.Status.State = state
+	kcCopy.Status.Status = status
+
+	if kubeconf != nil {
+		kcCopy.Status.Kubeconfig = *kubeconf
+	}
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
@@ -248,7 +314,6 @@ func newController(
 			glog.Info("Update called")
 			c.enqueueKrakenCluster(new)
 		},
-		// TODO DeleteFunc
 	})
 
 	return c

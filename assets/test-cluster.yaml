@@ -7,6 +7,9 @@ spec:
   customerID: myCustomerID
   cloudProvider:
     name: aws
+    credentials:
+      username: cindyo
+      password: fakepassword1
   provisioner:
     name: juju
   cluster:

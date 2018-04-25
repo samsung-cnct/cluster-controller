@@ -31,7 +31,7 @@ const (
 )
 
 type CloudProviderInfo struct {
-	Name        string                   `json:"name"`
+	Name        CloudProviderName        `json:"name"`
 	Credentials CloudProviderCredentials `json:"credentials,omitempty"`
 }
 
@@ -65,8 +65,20 @@ type KrakenClusterSpec struct {
 	Cluster       ClusterInfo       `json:"cluster"`
 }
 
+type KrakenClusterState string
+
+const (
+	Unknown  KrakenClusterState = ""
+	Creating KrakenClusterState = "Creating"
+	Created  KrakenClusterState = "Created"
+	Deleting KrakenClusterState = "Deleting"
+	Deleted  KrakenClusterState = "Deleted"
+)
+
 type KrakenClusterStatus struct {
-	Status string `json:"status"`
+	Status     string             `json:"status"`
+	State      KrakenClusterState `json:"state"`
+	Kubeconfig string             `json:"kubeconfig"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
