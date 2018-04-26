@@ -17,9 +17,8 @@ spec:
       containers:
       - name: cluster-controller
         image: leahnp/cluster-test:latest
-        # TODO - why does this not work? w/ENTRYPOINT /bin/controller/main
-        # command: ["/bin/controller/main"]
-        # args:
-        # - -kubeconfig=""
+        command: ["/bin/controller/main"]
+        args:
+        - -kubeconfig=
         ports:
         - containerPort: 80

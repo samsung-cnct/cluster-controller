@@ -56,5 +56,5 @@ COPY --from=0 /go/src/app /bin/controller
 RUN go get gopkg.in/yaml.v2
 RUN git clone https://github.com/DStorck/gogo-juju.git /bin/gogo-juju
 
-ENTRYPOINT /bin/controller/main -kubeconfig=""
-# ENTRYPOINT /bin/controller/main
+# ENTRYPOINT /bin/controller/main -kubeconfig=""
+CMD ["/bin/controller/main"]
