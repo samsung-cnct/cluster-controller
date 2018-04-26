@@ -8,7 +8,7 @@ spec:
   cloudProvider:
     name: aws
     credentials:
-      username: cindyo
+      username: myuser
       password: fakepassword1
   provisioner:
     name: juju
