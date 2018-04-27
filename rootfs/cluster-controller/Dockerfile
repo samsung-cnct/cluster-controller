@@ -54,7 +54,6 @@ COPY --from=0 /go/src/app /bin/controller
 # USER $JUJU_USER
 # gogo juju
 RUN go get gopkg.in/yaml.v2
-# RUN git clone -b aws-cluster https://github.com/dstorck/gogo.git /bin/gogo
 RUN git clone https://github.com/dstorck/gogo.git /bin/gogo
 RUN cd /bin/gogo && \
 		go get github.com/dstorck/gogo

@@ -1,11 +1,11 @@
 # Default values for cluster-controller.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-name: 
 
 image:
-  # repository: samsung_cnct/cluster-controller:latest
-  repository: leahnp/cluster-test:latest
+  repository: samsung_cnct/cluster-controller:latest
+  # if you develop locally, build the docker image and push to your repo
+  # repository: leahnp/cluster-test:latest
   # TODO version this
   # tag: lastest
   # pullPolicy: IfNotPresent
