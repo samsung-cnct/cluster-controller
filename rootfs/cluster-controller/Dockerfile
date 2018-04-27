@@ -46,7 +46,7 @@ RUN cd /opt && wget https://storage.googleapis.com/golang/go${GOVERSION}.linux-a
 
 WORKDIR /root/
 RUN mkdir /bin/controller
-RUN mkdir /bin/gogo-juju
+RUN mkdir /bin/gogo
 
 # --from=0 pulls in the artifacts from the first build stage
 COPY --from=0 /go/src/app /bin/controller
@@ -54,7 +54,10 @@ COPY --from=0 /go/src/app /bin/controller
 # USER $JUJU_USER
 # gogo juju
 RUN go get gopkg.in/yaml.v2
-RUN git clone https://github.com/dstorck/gogo-juju.git /bin/gogo-juju
+# RUN git clone -b aws-cluster https://github.com/dstorck/gogo.git /bin/gogo
+RUN git clone https://github.com/dstorck/gogo.git /bin/gogo
+RUN cd /bin/gogo && \
+		go get github.com/dstorck/gogo
 
 # ENTRYPOINT /bin/controller/main -kubeconfig=""
 CMD ["/bin/controller/main"]

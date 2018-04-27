@@ -32,11 +32,27 @@ spec:
             cpu: {{ .Values.service.cpu }}
             memory: {{ .Values.storage.size }}
         env:
-        - name: SECRET_USERNAME
+        # TODO: logging env vars
+        - name: AWS_USERNAME
           valueFrom:
             secretKeyRef:
               name: test-secret
-              key: username
+              key: aws-username
+        - name: AWS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: aws-access-key
+        - name: AWS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: aws-secret-key
+        - name: MAAS_OAUTH
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: maas-oauth
         volumeMounts:
         - name: config
           mountPath: /bin/controller-start.sh
@@ -46,9 +62,6 @@ spec:
         command:
           - "/bin/bash"
           - "/bin/controller-start.sh"
-          # - "/bin/controller/main"
-          # - "-kubeconfig="
-          # TODO: logging env
       volumes:
       - name: config
         configMap:
