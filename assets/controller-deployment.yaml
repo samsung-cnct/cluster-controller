@@ -16,6 +16,9 @@ spec:
     spec:
       containers:
       - name: cluster-controller
-        image: leahnp/controller-test
+        image: leahnp/cluster-test:latest
+        command: ["/bin/controller/main"]
+        args:
+        - -kubeconfig=
         ports:
         - containerPort: 80

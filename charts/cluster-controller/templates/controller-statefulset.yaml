@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 }}
+spec:
+  serviceName: {{ template "fullname" . }}
+  replicas: {{ default 3 .Values.service.replicas }}
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      name: {{ template "fullname" . }}
+      labels:
+        app: {{ template "fullname" . }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.service.terminationGracePeriodSeconds }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+          name: peer
+        - containerPort: {{ .Values.service.clientPort }}
+          name: client
+        resources:
+          requests:
+            cpu: {{ .Values.service.cpu }}
+            memory: {{ .Values.storage.size }}
+        env:
+        # TODO: logging env vars
+        - name: AWS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: aws-username
+        - name: AWS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: aws-access-key
+        - name: AWS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: aws-secret-key
+        - name: MAAS_OAUTH
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: maas-oauth
+        volumeMounts:
+        - name: config
+          mountPath: /bin/controller-start.sh
+          subPath: controller-start.sh
+          readOnly: false
+
+        command:
+          - "/bin/bash"
+          - "/bin/controller-start.sh"
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "fullname" . }}
