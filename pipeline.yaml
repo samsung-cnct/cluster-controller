@@ -3,7 +3,7 @@ rootfs:
   - image: samsung_cnct/cluster-controller
     context: cluster-controller
     chart: cluster-controller
-    value: images.repository
+    value: image.repository
     dockerContext: .
 configs:
   - chart: cluster-controller
@@ -11,7 +11,9 @@ configs:
     retries: 2
     release: cluster-controller
 test:
-  # TODO: add test for verify codegen
-stage:  
-prod: 
+  beforeScript:
+    image: golang:1.8.3
+    shell: /bin/bash
+    script: ./pipeline_wrapper_verify.sh
+prod:
   doDeploy: none

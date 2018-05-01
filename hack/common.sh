@@ -22,8 +22,7 @@ function inf {
 }
 
 packages() {
-    // TODO
-  echo ""
+  echo "./ ./pkg/apis/clustercontroller ./pkg/apis/clustercontroller/v1alpha1 ./pkg/signals"
 }
 
 valid_go_files() {

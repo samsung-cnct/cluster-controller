@@ -1,11 +1,13 @@
 #!/bin/bash
+
 set -o errexit
 set -o nounset
 set -o pipefail
 
-ROOT=$(dirname "${BASH_SOURCE}")/..
+cd $(dirname "$0")
+ROOT=$(pwd)/..
+echo ${ROOT}
 source "${ROOT}/hack/common.sh"
-
 
 # Collect Failed tests in this Array , initialize to nil
 FAILED_TESTS=()
@@ -42,6 +44,19 @@ done
 if ${SILENT} ; then
   echo "Running in silent mode, run with -v if you want to see script logs."
 fi
+
+if [[ ! -x "$(command -v goimports 2>/dev/null)" ]]; then
+  go get golang.org/x/tools/cmd/goimports
+fi
+
+if [[ ! -x "$(command -v golint 2>/dev/null)" ]]; then
+  go get github.com/golang/lint/golint
+fi
+
+if [[ ! -x "$(command -v gocyclo 2>/dev/null)" ]]; then
+  go get github.com/fzipp/gocyclo
+fi
+
 
 
 ret=0
