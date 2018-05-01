@@ -1,6 +1,7 @@
 package main
 
 import (
+	clusterErrors "errors"
 	"flag"
 	"fmt"
 	"time"
@@ -27,6 +28,8 @@ import (
 	informers "github.com/samsung-cnct/cluster-controller/pkg/client/informers/externalversions"
 	listers "github.com/samsung-cnct/cluster-controller/pkg/client/listers/clustercontroller/v1alpha1"
 	"github.com/samsung-cnct/cluster-controller/pkg/signals"
+
+	"github.com/dstorck/gogo"
 )
 
 const controllerAgentName = "cluster-controller"
@@ -37,7 +40,12 @@ const (
 	// MessageResourceSynced is the message used for an Event fired when a KrakenCluster
 	// is synced successfully
 	MessageResourceSynced = "KrakenCluster synced successfully"
-	ClusterReady          = "Ready"
+	// CreatedStatus will show the juju status
+	CreatedStatus = "CreatedStatus"
+	ClusterReady  = "Ready"
+	// TODO make MaasEndpoint part of Spec, and JujuBundle an argument
+	MaasEndpoint = "http://192.168.2.24/MAAS/api/2.0"
+	JujuBundle   = "cs:bundle/kubernetes-core-306"
 )
 
 // Controller object
@@ -141,9 +149,6 @@ func (c *Controller) processNextWorkItem() bool {
 	return true
 }
 
-// syncHandler compares the actual state with the desired, and attempts to
-// converge the two. It then updates the Status block of the KrakenCluster resource
-// with the current status of the resource.
 func (c *Controller) syncHandler(key string) error {
 	// Convert the namespace/name string into a distinct namespace and name
 	namespace, name, err := cache.SplitMetaNamespaceKey(key)
@@ -171,7 +176,10 @@ func (c *Controller) syncHandler(key string) error {
 	case samsungv1alpha1.Unknown:
 		glog.Infof("Processing Unknown state for %s", clusterName)
 		// process create
-
+		err = c.createCluster(kc)
+		if err != nil {
+			return err
+		}
 		// add Finalizer so the resource won't be deleted immediately on delete kc
 		kc.SetFinalizers([]string{"samsung.cnct.com/finalizer"})
 
@@ -184,21 +192,27 @@ func (c *Controller) syncHandler(key string) error {
 		// check for delete
 		if kc.DeletionTimestamp != nil {
 			glog.Infof("Processing Delete for %s", clusterName)
-			// process delete
-
+			c.deleteCluster(kc)
 			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, nil)
 			if err != nil {
 				return err
 			}
 		} else {
+			if c.isClusterReady(kc) {
+				cluster := gogo.Juju{Name: string(kc.UID)}
+				karray, err := cluster.GetKubeConfig()
+				kubeconf := ""
+				if err != nil {
+					glog.Error(err)
+				} else {
+					kubeconf = string(karray)
+				}
+				err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Created, &kubeconf)
+				if err != nil {
+					return err
+				}
+				// TODO add juju status to an event
 
-			// check status
-
-			// if ready then get kubeconfig
-			kubeconf := "kubeconfig test"
-			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Created, &kubeconf)
-			if err != nil {
-				return err
 			}
 		}
 	case samsungv1alpha1.Created:
@@ -206,8 +220,7 @@ func (c *Controller) syncHandler(key string) error {
 		// check for delete
 		if kc.DeletionTimestamp != nil {
 			glog.Infof("Processing Delete for %s", clusterName)
-			// process delete
-
+			c.deleteCluster(kc)
 			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, nil)
 			if err != nil {
 				return err
@@ -215,17 +228,16 @@ func (c *Controller) syncHandler(key string) error {
 		}
 	case samsungv1alpha1.Deleting:
 		glog.Infof("Processing Deleting state for '%s'", clusterName)
-		// check status
-
-		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, nil)
-		if err != nil {
-			return err
+		if c.isDestroyComplete(kc) {
+			err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, nil)
+			if err != nil {
+				return err
+			}
 		}
 	case samsungv1alpha1.Deleted:
 		glog.Infof("Processing Deleted state for %s", clusterName)
 		// remove the Finalizer field so the resource can be deleted
 		kc.SetFinalizers(nil)
-
 		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, nil)
 		if err != nil {
 			return err
@@ -257,6 +269,53 @@ func (c *Controller) updateKrakenClusterStatus(kc *samsungv1alpha1.KrakenCluster
 	// which is ideal for ensuring nothing other than resource status has been updated.
 	_, err := c.samsungclientset.SamsungV1alpha1().KrakenClusters(kc.Namespace).Update(kcCopy)
 	return err
+}
+
+func (c *Controller) isClusterReady(kc *samsungv1alpha1.KrakenCluster) bool {
+	cluster := gogo.Juju{Name: string(kc.UID)}
+	return cluster.ClusterReady()
+}
+
+func (c *Controller) isDestroyComplete(kc *samsungv1alpha1.KrakenCluster) bool {
+	cluster := gogo.Juju{Name: string(kc.UID)}
+	return cluster.DestroyComplete()
+}
+
+func (c *Controller) createCluster(kc *samsungv1alpha1.KrakenCluster) error {
+	// TODO remove hardcoding for MaaS.  Also support AWS. Use apiMachinary errors.
+	if kc.Spec.CloudProvider.Name != samsungv1alpha1.MaasProvider {
+		return clusterErrors.New("Invalid Cloudprovider.  Valid providers are: maas")
+	}
+
+	cluster := gogo.Juju{
+		Name:   string(kc.UID),
+		Kind:   gogo.Maas,
+		Bundle: JujuBundle,
+		MaasCl: gogo.MaasCloud{
+			Type:     string(kc.UID),
+			Endpoint: MaasEndpoint,
+		},
+		MaasCr: gogo.MaasCredentials{
+			CloudName: string(kc.UID),
+			Username:  kc.Spec.CloudProvider.Credentials.Username,
+			MaasOauth: kc.Spec.CloudProvider.Credentials.Password,
+		},
+	}
+
+	// TODO this blocks for a few minutes creating the juju controller,
+	// but the juju controller is needed for other commands.  Use a Go
+	// routine and update state when this is ready?
+	cluster.Spinup()
+	return nil
+}
+
+func (c *Controller) deleteCluster(kc *samsungv1alpha1.KrakenCluster) {
+	// TODO remove hardcoding for Maas
+	cluster := gogo.Juju{
+		Name: string(kc.UID),
+		Kind: gogo.Maas,
+	}
+	cluster.DestroyCluster()
 }
 
 // enqueueKrakenCluster takes a KrakenCluster resource and converts it into a namespace/name
