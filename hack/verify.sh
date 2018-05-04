@@ -63,7 +63,7 @@ ret=0
 run-check "${ROOT}/hack/checks/verify-go-vet.sh" bash
 run-check "${ROOT}/hack/checks/verify-gofmt.sh" bash
 run-check "${ROOT}/hack/checks/verify-goimports.sh" bash
-#run-check "${ROOT}/hack/checks/verify-golint.sh" bash
+run-check "${ROOT}/hack/checks/verify-golint.sh" bash
 run-check "${ROOT}/hack/checks/verify-gocyclo.sh" bash
 
 
