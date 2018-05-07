@@ -189,7 +189,6 @@ func (c *Controller) syncHandler(key string) error {
 }
 
 func (c *Controller) processStates(kc *samsungv1alpha1.KrakenCluster) error {
-	glog.Infof("Received KrakenCluster object for clusterName %s", kc.Spec.Cluster.ClusterName)
 	switch kc.Status.State {
 	case samsungv1alpha1.Unknown:
 		err := c.processUnknownState(kc)
@@ -234,10 +233,8 @@ func (c *Controller) processCreatingState(kc *samsungv1alpha1.KrakenCluster) err
 	glog.Infof("Processing Creating state for %s", kc.Spec.Cluster.ClusterName)
 	// check for delete
 	if kc.DeletionTimestamp != nil && (kc.Status.Status == JujuBootstrapReady || kc.Status.Status == JujuBootstrapError) {
-		if kc.Status.Status == JujuBootstrapReady {
-			glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
-			c.deleteCluster(kc)
-		}
+		glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
+		c.deleteCluster(kc)
 		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
 		if err != nil {
 			return err
@@ -315,6 +312,9 @@ func (c *Controller) updateKrakenClusterStatus(kc *samsungv1alpha1.KrakenCluster
 	kcCopy := kc.DeepCopy()
 	kcCopy.Status.State = state
 	kcCopy.Status.Status = status
+	if kubeconf != nil {
+		kcCopy.Status.Kubeconfig = *kubeconf
+	}
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
@@ -356,11 +356,14 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 	}
 	// this call blocks while bootstrapping juju
 	status := JujuBootstrapReady
-	var spinupError = false
+	spinupError := false
 	err := cluster.Spinup()
 	if err != nil {
 		glog.Error(err.Error())
 		spinupError = true
+	}
+	if spinupError {
+		glog.Info("spinupError = true")
 	}
 	exists, err := cluster.ControllerReady()
 	if err != nil {
@@ -372,6 +375,9 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 		}
 		status = JujuBootstrapError
 	}
+	glog.Info("status = ", status)
+	// add Finalizer so the resource won't be deleted immediately on delete kc
+	kc.SetFinalizers([]string{"samsung.cnct.com/finalizer"})
 	err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Creating, status, nil)
 	if err != nil {
 		glog.Error(err.Error())
