@@ -3,17 +3,20 @@ FROM golang:1.8
 ENV GOBIN /go/bin
 
 # build directories
-RUN mkdir /app
-RUN mkdir /go/src/app
-ADD . /go/src/app
-WORKDIR /go/src/app
+ADD . /go/src/github.com/samsung-cnct/cluster-controller
+WORKDIR /go/src/github.com/samsung-cnct/cluster-controller
 
 # Go dep!
 RUN go get -u github.com/golang/dep/...
-RUN dep ensure
+RUN dep ensure -v
+
+RUN ./hack/update-codegen.sh
+
+# RUN cp ./pkg/apis/clustercontroller ./vendor/github.com/samsung-cnct/cluster-controller/pkg/apis
 
 # Build my app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/main main.go
+
 
 FROM ubuntu:16.04
 
@@ -49,15 +52,8 @@ RUN mkdir /bin/controller
 RUN mkdir /bin/gogo
 
 # --from=0 pulls in the artifacts from the first build stage
-COPY --from=0 /go/src/app /bin/controller
-
-# USER $JUJU_USER
-# gogo juju
-RUN go get gopkg.in/yaml.v2
-RUN go get github.com/sirupsen/logrus
-RUN git clone https://github.com/dstorck/gogo.git /bin/gogo
-RUN cd /bin/gogo && \
-		go get github.com/dstorck/gogo
+COPY --from=0 /app/main /bin/controller
 
 # ENTRYPOINT /bin/controller/main -kubeconfig=""
-CMD ["/bin/controller/main"]
+#CMD ["/bin/controller/main"]
+

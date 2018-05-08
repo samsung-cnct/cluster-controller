@@ -34,6 +34,10 @@ required = [
 ]
 
 [[constraint]]
+  name = "github.com/dstorck/gogo"
+  branch = "master"
+
+[[constraint]]
   name = "k8s.io/code-generator"
   version = "kubernetes-1.10.1"
 
@@ -52,3 +56,13 @@ required = [
 [prune]
   go-tests = true
   unused-packages = true
+
+[[prune.project]]
+    name = "k8s.io/code-generator"
+    unused-packages = false
+    non-go = false
+
+[[prune.project]]
+    name = "k8s.io/gengo"
+    unused-packages = false
+    non-go = false
