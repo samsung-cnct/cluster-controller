@@ -19,7 +19,8 @@ type KrakenCluster struct {
 type CloudProviderCredentials struct {
 	Username   string `json:"username,omitempty"`
 	Password   string `json:"password,omitempty"`
-	SecretName string `json:"secretname,omitempty"`
+	Accesskey  string `json:"accesskey,omitempty"`
+	Secretname string `json:"secretname,omitempty"`
 }
 
 type CloudProviderName string
@@ -33,6 +34,7 @@ const (
 type CloudProviderInfo struct {
 	Name        CloudProviderName        `json:"name"`
 	Credentials CloudProviderCredentials `json:"credentials,omitempty"`
+	Region      string                   `json:"region,omitempty"`
 }
 
 type ProvisionerInfo struct {

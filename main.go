@@ -234,7 +234,12 @@ func (c *Controller) processCreatingState(kc *samsungv1alpha1.KrakenCluster) err
 	// check for delete
 	if kc.DeletionTimestamp != nil && (kc.Status.Status == JujuBootstrapReady || kc.Status.Status == JujuBootstrapError) {
 		glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
-		c.deleteCluster(kc)
+		if kc.Status.Status == JujuBootstrapReady {
+			err := c.deleteCluster(kc)
+			if err != nil {
+				return err
+			}
+		}
 		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
 		if err != nil {
 			return err
@@ -274,8 +279,11 @@ func (c *Controller) processCreatedState(kc *samsungv1alpha1.KrakenCluster) erro
 	// check for delete
 	if kc.DeletionTimestamp != nil {
 		glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
-		c.deleteCluster(kc)
-		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
+		err := c.deleteCluster(kc)
+		if err != nil {
+			return err
+		}
+		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
 		if err != nil {
 			return err
 		}
@@ -341,19 +349,43 @@ func (c *Controller) isDestroyComplete(kc *samsungv1alpha1.KrakenCluster) bool {
 	return destroyed
 }
 
-func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
-	cluster := gogo.Juju{
-		Name:   string(kc.UID),
-		Kind:   gogo.Maas,
-		Bundle: JujuBundle,
-		MaasCl: gogo.MaasCloud{
-			Endpoint: MaasEndpoint,
-		},
-		MaasCr: gogo.MaasCredentials{
-			Username:  kc.Spec.CloudProvider.Credentials.Username,
-			MaasOauth: kc.Spec.CloudProvider.Credentials.Password,
-		},
+func (c *Controller) initGogoInstance(kc *samsungv1alpha1.KrakenCluster) *gogo.Juju {
+	switch kc.Spec.CloudProvider.Name {
+	case samsungv1alpha1.MaasProvider:
+		cluster := &gogo.Juju{
+			Name:   string(kc.UID),
+			Kind:   gogo.Maas,
+			Bundle: JujuBundle,
+			MaasCl: gogo.MaasCloud{
+				Endpoint: MaasEndpoint,
+			},
+			MaasCr: gogo.MaasCredentials{
+				Username:  kc.Spec.CloudProvider.Credentials.Username,
+				MaasOauth: kc.Spec.CloudProvider.Credentials.Password,
+			},
+		}
+		return cluster
+	case samsungv1alpha1.AwsProvider:
+		cluster := &gogo.Juju{
+			Name:   string(kc.UID),
+			Kind:   gogo.Aws,
+			Bundle: JujuBundle,
+			AwsCr: gogo.AWSCredentials{
+				Username:  kc.Spec.CloudProvider.Credentials.Username,
+				AccessKey: kc.Spec.CloudProvider.Credentials.Accesskey,
+				SecretKey: kc.Spec.CloudProvider.Credentials.Password,
+			},
+			AwsCl: gogo.AWSCloud{
+				Region: kc.Spec.CloudProvider.Region,
+			},
+		}
+		return cluster
 	}
+	return nil
+}
+
+func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
+	cluster := c.initGogoInstance(kc)
 	// this call blocks while bootstrapping juju
 	status := JujuBootstrapReady
 	spinupError := false
@@ -385,24 +417,30 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 }
 
 func (c *Controller) createCluster(kc *samsungv1alpha1.KrakenCluster) error {
-	// TODO remove hardcoding for MaaS.  Also support AWS. Use apiMachinary errors.
-	if kc.Spec.CloudProvider.Name != samsungv1alpha1.MaasProvider {
-		return clusterErrors.New("Invalid Cloudprovider.  Valid providers are: maas")
+	// TODO Use apiMachinary errors instead
+	if kc.Spec.CloudProvider.Name != samsungv1alpha1.MaasProvider && kc.Spec.CloudProvider.Name != samsungv1alpha1.AwsProvider {
+		return clusterErrors.New("Invalid Cloudprovider.  Valid providers are: maas, aws")
 	}
 	c.spinUp(kc)
 	return nil
 }
 
-func (c *Controller) deleteCluster(kc *samsungv1alpha1.KrakenCluster) {
-	// TODO remove hardcoding for Maas
-	cluster := gogo.Juju{
-		Name: string(kc.UID),
-		Kind: gogo.Maas,
+func (c *Controller) deleteCluster(kc *samsungv1alpha1.KrakenCluster) error {
+	cluster := new(gogo.Juju)
+	cluster.Name = string(kc.UID)
+	if kc.Spec.CloudProvider.Name == samsungv1alpha1.AwsProvider {
+		cluster.Kind = gogo.Aws
+		cluster.AwsCl = gogo.AWSCloud{
+			Region: kc.Spec.CloudProvider.Region}
+	} else if kc.Spec.CloudProvider.Name == samsungv1alpha1.MaasProvider {
+		cluster.Kind = gogo.Maas
 	}
 	err := cluster.DestroyCluster()
 	if err != nil {
 		glog.Error(err)
+		return err
 	}
+	return nil
 }
 
 // enqueueKrakenCluster takes a KrakenCluster resource and converts it into a namespace/name
