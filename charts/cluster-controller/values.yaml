@@ -13,6 +13,12 @@ image:
 
 krakenClusterShortNames: kc
 
+rbac:
+  # If true, create & use RBAC resources
+  create: true
+  # Ignored if rbac.create is true
+  serviceAccountName: default
+
 service:
   type: ClusterIP
   internalPort: 80

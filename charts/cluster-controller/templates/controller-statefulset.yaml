@@ -17,6 +17,7 @@ spec:
       labels:
         app: {{ template "fullname" . }}
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: {{ .Values.service.terminationGracePeriodSeconds }}
       containers:
       - name: {{ .Chart.Name }}
