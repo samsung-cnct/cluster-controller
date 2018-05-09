@@ -10,8 +10,6 @@ WORKDIR /go/src/github.com/samsung-cnct/cluster-controller
 RUN go get -u github.com/golang/dep/...
 RUN dep ensure -v
 
-RUN ./hack/update-codegen.sh
-
 # RUN cp ./pkg/apis/clustercontroller ./vendor/github.com/samsung-cnct/cluster-controller/pkg/apis
 
 # Build my app
@@ -55,5 +53,4 @@ RUN mkdir /bin/gogo
 COPY --from=0 /app/main /bin/controller
 
 # ENTRYPOINT /bin/controller/main -kubeconfig=""
-#CMD ["/bin/controller/main"]
-
+CMD ["/bin/controller/main"]

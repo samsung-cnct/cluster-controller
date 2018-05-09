@@ -3,12 +3,12 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: quay.io/samsung_cnct/cluster-controller:latest
+  name: quay.io/samsung_cnct/cluster-controller:prod
+
   # if you develop locally, build the docker image and push to your repo
   # repository: leahnp/cluster-test:latest
   # TODO version this
-  # tag: lastest
-  # pullPolicy: IfNotPresent
+  # tag: prod
   pullPolicy: Always
 
 krakenClusterShortNames: kc

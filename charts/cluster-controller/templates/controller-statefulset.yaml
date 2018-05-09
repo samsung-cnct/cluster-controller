@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.service.terminationGracePeriodSeconds }}
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}"
+        image: "{{ .Values.image.name }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
@@ -33,26 +33,26 @@ spec:
             memory: {{ .Values.storage.size }}
         env:
         # TODO: logging env vars
-        - name: AWS_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: test-secret
-              key: aws-username
-        - name: AWS_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: test-secret
-              key: aws-access-key
-        - name: AWS_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: test-secret
-              key: aws-secret-key
-        - name: MAAS_OAUTH
-          valueFrom:
-            secretKeyRef:
-              name: test-secret
-              key: maas-oauth
+        # - name: AWS_USERNAME
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: test-secret
+        #       key: aws-username
+        # - name: AWS_ACCESS_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: test-secret
+        #       key: aws-access-key
+        # - name: AWS_SECRET_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: test-secret
+        #       key: aws-secret-key
+        # - name: MAAS_OAUTH
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: test-secret
+        #       key: maas-oauth
         volumeMounts:
         - name: config
           mountPath: /bin/controller-start.sh
