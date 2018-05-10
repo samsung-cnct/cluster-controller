@@ -13,7 +13,7 @@ spec:
   names:
     plural: krakenclusters
     singular: krakencluster
-    kind: krakencluster
+    kind: KrakenCluster
     shortnames:
       - {{ .Values.krakenClusterShortNames }}
   validation:
