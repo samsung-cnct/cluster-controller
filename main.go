@@ -52,6 +52,8 @@ const (
 	JujuBootstrapReady = "JujuBootstrapReady"
 	// JujuBootstrapError displays this in the resource status field
 	JujuBootstrapError = "JujuBootstrapError"
+	// DeleteComplete is displayed in the resource status field when a delete is complete
+	DeleteComplete = "DeleteComplete"
 	// MaasEndpoint will show the endpoint to use for Maas - This will be input in the future
 	MaasEndpoint = "http://192.168.2.24/MAAS/api/2.0"
 	// JujuBundle is the bundle used to create the cluster - This will be input in the future
@@ -234,13 +236,7 @@ func (c *Controller) processCreatingState(kc *samsungv1alpha1.KrakenCluster) err
 	// check for delete
 	if kc.DeletionTimestamp != nil && (kc.Status.Status == JujuBootstrapReady || kc.Status.Status == JujuBootstrapError) {
 		glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
-		if kc.Status.Status == JujuBootstrapReady {
-			err := c.deleteCluster(kc)
-			if err != nil {
-				return err
-			}
-		}
-		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
+		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, kc.Status.Status, nil)
 		if err != nil {
 			return err
 		}
@@ -279,11 +275,7 @@ func (c *Controller) processCreatedState(kc *samsungv1alpha1.KrakenCluster) erro
 	// check for delete
 	if kc.DeletionTimestamp != nil {
 		glog.Infof("Processing Delete for %s", kc.Spec.Cluster.ClusterName)
-		err := c.deleteCluster(kc)
-		if err != nil {
-			return err
-		}
-		err = c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, string(samsungv1alpha1.Deleting), nil)
+		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, JujuBootstrapReady, nil)
 		if err != nil {
 			return err
 		}
@@ -293,7 +285,24 @@ func (c *Controller) processCreatedState(kc *samsungv1alpha1.KrakenCluster) erro
 
 func (c *Controller) processDeletingState(kc *samsungv1alpha1.KrakenCluster) error {
 	glog.Infof("Processing Deleting state for '%s'", kc.Spec.Cluster.ClusterName)
-	if c.isDestroyComplete(kc) {
+	status := DeleteComplete
+	if kc.Status.Status == JujuBootstrapReady {
+		// this call blocks
+		c.deleteCluster(kc)
+		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleting, status, nil)
+		if err != nil {
+			return err
+		}
+	} else if kc.Status.Status == DeleteComplete {
+		if c.isDestroyComplete(kc) {
+			// allow the delete to finish
+			err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, string(samsungv1alpha1.Deleted), nil)
+			if err != nil {
+				return err
+			}
+		}
+	} else if kc.Status.Status == JujuBootstrapError {
+		// allow the delete to finish
 		err := c.updateKrakenClusterStatus(kc, samsungv1alpha1.Deleted, string(samsungv1alpha1.Deleted), nil)
 		if err != nil {
 			return err
