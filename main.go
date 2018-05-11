@@ -1,7 +1,6 @@
 package main
 
 import (
-	clusterErrors "errors"
 	"flag"
 	"fmt"
 	"time"
@@ -364,9 +363,9 @@ func (c *Controller) initGogoInstance(kc *samsungv1alpha1.KrakenCluster) *gogo.J
 		cluster := &gogo.Juju{
 			Name:   string(kc.UID),
 			Kind:   gogo.Maas,
-			Bundle: JujuBundle,
+			Bundle: kc.Spec.Provisioner.Bundle,
 			MaasCl: gogo.MaasCloud{
-				Endpoint: MaasEndpoint,
+				Endpoint: kc.Spec.Provisioner.MaasEndpoint,
 			},
 			MaasCr: gogo.MaasCredentials{
 				Username:  kc.Spec.CloudProvider.Credentials.Username,
@@ -378,7 +377,7 @@ func (c *Controller) initGogoInstance(kc *samsungv1alpha1.KrakenCluster) *gogo.J
 		cluster := &gogo.Juju{
 			Name:   string(kc.UID),
 			Kind:   gogo.Aws,
-			Bundle: JujuBundle,
+			Bundle: kc.Spec.Provisioner.Bundle,
 			AwsCr: gogo.AWSCredentials{
 				Username:  kc.Spec.CloudProvider.Credentials.Username,
 				AccessKey: kc.Spec.CloudProvider.Credentials.Accesskey,
@@ -427,9 +426,6 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 
 func (c *Controller) createCluster(kc *samsungv1alpha1.KrakenCluster) error {
 	// TODO Use apiMachinary errors instead
-	if kc.Spec.CloudProvider.Name != samsungv1alpha1.MaasProvider && kc.Spec.CloudProvider.Name != samsungv1alpha1.AwsProvider {
-		return clusterErrors.New("Invalid Cloudprovider.  Valid providers are: maas, aws")
-	}
 	c.spinUp(kc)
 	return nil
 }
