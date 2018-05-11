@@ -38,7 +38,9 @@ type CloudProviderInfo struct {
 }
 
 type ProvisionerInfo struct {
-	Name string `json:"name"`
+	Name         string `json:"name"`
+	Bundle       string `json:"bundle,omitempty"`
+	MaasEndpoint string `json:"maasEndpoint,omitempty"`
 }
 
 type NodeProperties struct {

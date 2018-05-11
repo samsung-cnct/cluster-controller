@@ -6,12 +6,14 @@ metadata:
 spec:
   customerID: myCustomerID
   cloudProvider:
-    name: aws
+    name: maas
     credentials:
       username: myuser
-      password: fakepassword1
+      password: fakeMaasOauthAPIKey
   provisioner:
     name: juju
+    bundle: cs:bundle/kubernetes-core-306
+    maasEndpoint: yourMaasEndpointHere
   cluster:
     clusterName: my-test-cluster
     nodePools:
@@ -32,4 +34,3 @@ spec:
         os: ubuntu:16:04
     fabric:
       name: canal
-

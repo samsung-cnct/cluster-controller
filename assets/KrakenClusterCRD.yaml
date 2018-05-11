@@ -67,12 +67,20 @@ spec:
                 properties:
                   name:
                     type: string
+                    enum:
+                      - "aws"
+                      - "maas"
                   credentials:
                     type: object
               provisioner:
                 type: object
                 required:
                 - name
+                - bundle
                 properties:
                   name:
-                   type: string
+                    type: string
+                  bundle:
+                    type: string
+                  maasEndpoint:
+                    type: string
