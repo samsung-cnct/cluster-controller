@@ -11,4 +11,4 @@ echo "$SECRET_USERNAME"
 
 
 # start controller
-/bin/controller/main -kubeconfig=
+/bin/controller/main -kubeconfig= -logtostderr=true
