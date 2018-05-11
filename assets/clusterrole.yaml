@@ -1,0 +1,22 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: krakencluster-reader
+rules:
+- apiGroups: ["samsung.cnct.com"]
+  resources: ["krakenclusters"]
+  verbs: ["get", "watch", "list"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: krakencluster-writer
+rules:
+- apiGroups: ["samsung.cnct.com"]
+  resources: ["krakenclusters", "events", "namespaces"]
+  verbs: ["create", "update", "delete","edit","patch"]
+- apiGroups: [""]
+  resources: ["events", "namespaces"]
+  verbs: ["create", "update", "delete","edit","patch"]
