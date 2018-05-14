@@ -14,7 +14,7 @@ This custom controller manages a custom resource of type `Cluster`.
 Make sure your cluster has the clusterrole and clusterbindings created. If not:
 ```
 $ kubectl create -f assets/clusterrole.yaml
-$ kubectl create -f assets/clusterrolebinding.yaml`
+$ kubectl create -f assets/clusterrolebinding.yaml
 ```
 
 ```
@@ -65,8 +65,10 @@ kubectl create -f assets/test-maas.yaml
 ```
 
 Monitor the `KrakenCluster` resources with:
-`kubectl get kc`
-`kubectl describe kc <metadata.name>`
+```
+kubectl get kc
+kubectl describe kc <metadata.name>
+```
 
 ## Running Locally Without a Container
 
