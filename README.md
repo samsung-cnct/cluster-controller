@@ -7,7 +7,7 @@ This is a WIP repo for a POC, TODO alter directory structure and create a CI job
 
 ## Purpose
 
-This custom controller manages a custom resource of type `Cluster`.
+This custom controller manages a custom resource of type `KrakenCluster`.
 
 ## Deploy CRD and create a resource
 
