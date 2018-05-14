@@ -18,7 +18,7 @@ $ kubectl create -f assets/clusterrolebinding.yaml`
 ```
 
 ```
-helm install chartmuseum/cluster-controller --version 0.1.3
+$ helm install chartmuseum/cluster-controller --version 0.1.3
 ```
 
 You may then create a sample resource by updating either `assets/test-aws.yaml` or `assets/test-maas.yaml`.
@@ -26,30 +26,30 @@ You may then create a sample resource by updating either `assets/test-aws.yaml` 
 For an **aws** cluster make sure you update the following fields in `assets/test-aws.yaml`:
 ```
 metadata
-  name : # name of your resource, will show up with `kubectl get kc`. should be unique for namespace
+  name : # name of your resource, will show up with $ kubectl get kc ,  should be unique for namespace
 spec:
   cloudProvider:
     credentials:
       username: # aws username or iam profile name to be used
-      accesskey: # aws Access Key Id
-      password: # aws Secret Access Key
+      accesskey: # aws access key id
+      password: # aws secret access key
     region: # optional , but ideally would be set. ex = "aws/us-west-2"
   provisioner:
-    bundle: # juju bundle desired for kubernetes cluster creation ex - cs:bundle/kubernetes-core-306
+    bundle: # juju bundle desired for kubernetes cluster creation. ex - cs:bundle/kubernetes-core-306
   cluster:
     clusterName: # name of your cluster
 ```
 For a **maas** cluster make sure you update the following fields in `assets/test-maas.yaml`:
 ```
 metadata
-  name : # name of your resource, will show up with `kubectl get kc`. should be unique for namespace
+  name : # name of your resource, will show up with $ kubectl get kc, should be unique for namespace
 spec:
   cloudProvider:
     credentials:
       username: # maas username
       password: # maas api key
   provisioner:
-    bundle: # juju bundle desired for kubernetes cluster creation ex - cs:bundle/kubernetes-core-306
+    bundle: # juju bundle desired for kubernetes cluster creation. ex - cs:bundle/kubernetes-core-306
     maasEndpoint: # ex-"http://your-ip/MAAS/api/2.0"
   cluster:
     clusterName: # name of your cluster
