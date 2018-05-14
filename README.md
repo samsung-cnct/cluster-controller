@@ -11,7 +11,7 @@ This custom controller manages a custom resource of type `KrakenCluster`.
 
 ## Deploy CRD and create a resource
 
-If your cluster has RBAC emabled you will need to create a clusterrole and clusterbinding:
+If your cluster has RBAC enabled you will need to create a clusterrole and clusterbinding:
 ```
 $ kubectl create -f assets/clusterrole.yaml
 $ kubectl create -f assets/clusterrolebinding.yaml
