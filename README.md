@@ -123,6 +123,6 @@ You can see/describe your new resource with `$ kubectl get kc` and watch the log
 
 To delete your cluster run:
 
-`$ kubectl delete <my-kc-resource>`
+`$ kubectl delete kc <my-kc-resource>`
 
 NOTE: Delete your `kc` resources BEFORE you delete the cluster-controller. If you don't you will not be able to delete your `kc` resource or your `KrakenCluster` crd resource.
