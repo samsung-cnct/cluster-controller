@@ -12,12 +12,16 @@ This custom controller manages a custom resource of type `Cluster`.
 ## Deploy CRD and create a resource
 
 Make sure your cluster has the clusterrole and clusterbindings created. If not:
-`$ kubectl create -f assets/clusterrole.yaml`
-`$ kubectl create -f assets/clusterrolebinding.yaml`
+```
+$ kubectl create -f assets/clusterrole.yaml
+$ kubectl create -f assets/clusterrolebinding.yaml`
+```
 
-`helm install chartmuseum/cluster-controller --version 0.1.3`
+```
+helm install chartmuseum/cluster-controller --version 0.1.3
+```
 
-You may then create a sample resource by updating `test-aws.yaml` or `test-maas.yaml` with your by first updating your information in either either `assets/test-aws.yaml` or `assets/test-maas.yaml` :
+You may then create a sample resource by updating either `assets/test-aws.yaml` or `assets/test-maas.yaml`.
 
 For an **aws** cluster make sure you update the following fields in `assets/test-aws.yaml`:
 ```
