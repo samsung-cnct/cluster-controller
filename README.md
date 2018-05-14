@@ -116,7 +116,7 @@ You can check the controller logs with `$ kubectl logs <controller pod>` to make
 Let's make sure the CRD is installed:
 `$ kubectl get crd`
 
-Nothing blowing up? Let's try to deploy a new KrakenCluster object! In `./assets` you will find a `test-aws.yaml`. Put your AWS creds and username in that file, rename the cluster something meaningful and create it:
+Nothing blowing up? Let's try to deploy a new KrakenCluster object! In `./assets` you will find a `test-aws.yaml`. Put your AWS or Maas creds ( specified above ) in that file, rename the cluster something meaningful and create it:
 `$ kubectl create -f assets/test-aws.yaml`
 
 You can see/describe your new resource with `$ kubectl get kc` and watch the logs from the controller pod to check the latest status. You can also monitor the cluster with the AWS UI.
