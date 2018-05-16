@@ -7,26 +7,68 @@ This is a WIP repo for a POC, TODO alter directory structure and create a CI job
 
 ## Purpose
 
-This custom controller manages a custom resource of type `Cluster`.
+This custom controller manages a custom resource of type `KrakenCluster`.
 
 ## Deploy CRD and create a resource
 
-Make sure your cluster has the clusterrole and clusterbindings created. If not:
-`$ kubectl create -f assets/clusterrole.yaml`
-`$ kubectl create -f assets/clusterrolebinding.yaml`
+If your cluster has RBAC enabled you will need to create a clusterrole and clusterbinding:
+```
+$ kubectl create -f assets/clusterrole.yaml
+$ kubectl create -f assets/clusterrolebinding.yaml
+```
 
-`helm install chartmuseum/cluster-controller --version 0.1.3`
+```
+$ helm install chartmuseum/cluster-controller --version 0.1.3
+```
 
-You may then create a sample resource by running
-```sh
+You may then create a sample resource by updating either `assets/test-aws.yaml` or `assets/test-maas.yaml`.
+
+For an **aws** cluster make sure you update the following fields in `assets/test-aws.yaml`:
+```
+metadata
+  name : # name of your resource, will show up with $ kubectl get kc ,  should be unique for namespace
+spec:
+  cloudProvider:
+    credentials:
+      username: # aws username or iam profile name to be used
+      accesskey: # aws access key id
+      password: # aws secret access key
+    region: # optional , but ideally would be set. ex = "aws/us-west-2"
+  provisioner:
+    bundle: # juju bundle desired for kubernetes cluster creation. ex - cs:bundle/kubernetes-core-306
+  cluster:
+    clusterName: # name of your cluster
+```
+For a **maas** cluster make sure you update the following fields in `assets/test-maas.yaml`:
+```
+metadata
+  name : # name of your resource, will show up with $ kubectl get kc, should be unique for namespace
+spec:
+  cloudProvider:
+    credentials:
+      username: # maas username
+      password: # maas api key
+  provisioner:
+    bundle: # juju bundle desired for kubernetes cluster creation. ex - cs:bundle/kubernetes-core-306
+    maasEndpoint: # ex-"http://your-ip/MAAS/api/2.0"
+  cluster:
+    clusterName: # name of your cluster
+```
+
+Then run:
+```
 kubectl create -f assets/test-aws.yaml
 ```
 or
-`kubectl create -f assets/test-maas.yaml`
+```
+kubectl create -f assets/test-maas.yaml
+```
 
-Be sure to plug your credentials into those files. Monitor the `KrakenCluster` resources with:
-`kubectl get kc`
-`kubectl describe kc <name>`
+Monitor the `KrakenCluster` resources with:
+```
+kubectl get kc
+kubectl describe kc <metadata.name>
+```
 
 ## Running Locally Without a Container
 
@@ -43,7 +85,7 @@ hack/update-codegen.sh
 
 ## To Test Locally With Minikube and the Helm Chart
 
-Start a minikube cluster - set your Kubernetes version to v1.10.0, a [bug](https://github.com/kubernetes/kubernetes/issues/61178) in v1.9.2 (default) will cause you some volume grief. 
+Start a minikube cluster - set your Kubernetes version to v1.10.0, a [bug](https://github.com/kubernetes/kubernetes/issues/61178) in v1.9.2 (default) will cause you some volume grief.
 
 `$ minikube start --kubernetes-version  v1.10.0`
 
@@ -74,13 +116,13 @@ You can check the controller logs with `$ kubectl logs <controller pod>` to make
 Let's make sure the CRD is installed:
 `$ kubectl get crd`
 
-Nothing blowing up? Let's try to deploy a new KrakenCluster object! In `./assets` you will find a `test-aws.yaml`. Put your AWS creds and username in that file, rename the cluster something meaningful and create it: 
+Nothing blowing up? Let's try to deploy a new KrakenCluster object! In `./assets` you will find a `test-aws.yaml`. Put your AWS or Maas creds ( specified above ) in that file, rename the cluster something meaningful and create it:
 `$ kubectl create -f assets/test-aws.yaml`
 
 You can see/describe your new resource with `$ kubectl get kc` and watch the logs from the controller pod to check the latest status. You can also monitor the cluster with the AWS UI.
 
 To delete your cluster run:
 
-`$ kubectl delete <my-kc-resource>`
+`$ kubectl delete kc <my-kc-resource>`
 
 NOTE: Delete your `kc` resources BEFORE you delete the cluster-controller. If you don't you will not be able to delete your `kc` resource or your `KrakenCluster` crd resource.
