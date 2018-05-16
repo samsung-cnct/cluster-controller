@@ -400,6 +400,7 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 	err := cluster.Spinup()
 	if err != nil {
 		glog.Error(err.Error())
+		c.recorder.Event(kc, corev1.EventTypeWarning, JujuBootstrapStatus, err.Error())
 		spinupError = true
 	}
 	if spinupError {
@@ -425,7 +426,6 @@ func (c *Controller) spinUp(kc *samsungv1alpha1.KrakenCluster) {
 }
 
 func (c *Controller) createCluster(kc *samsungv1alpha1.KrakenCluster) error {
-	// TODO Use apiMachinary errors instead
 	c.spinUp(kc)
 	return nil
 }
