@@ -3,7 +3,7 @@ rootfs:
   - image: samsung_cnct/cluster-controller
     context: cluster-controller
     chart: cluster-controller
-    value: image.repository
+    value: image.name
     dockerContext: .
 configs:
   - chart: cluster-controller
