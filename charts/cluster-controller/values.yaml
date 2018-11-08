@@ -3,23 +3,23 @@
 # Declare variables to be passed into your templates.
 
 image:
-  name: quay.io/samsung_cnct/cluster-controller:0.1.3-beda279492040c6423c27bbf4db82d6f7e62ab6f
+   name: quay.io/samsung_cnct/cluster-controller:0.1.5
 
   # if you develop locally, build the docker image and push to your repo
   # repository: leahnp/cluster-test:latest
   # TODO version this
   # tag: prod
-  pullPolicy: Always
+   pullPolicy: Always
 
 krakenClusterShortNames: kc
 
 service:
-  type: ClusterIP
-  internalPort: 80
-  clientPort: 80
-  replicas: 1
-  cpu: 100m
-  terminationGracePeriodSeconds: 30
+   type: ClusterIP
+   internalPort: 80
+   clientPort: 80
+   replicas: 1
+   cpu: 100m
+   terminationGracePeriodSeconds: 30
 
 storage:
-  memory: 512Mi
+   memory: 512Mi
