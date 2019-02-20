@@ -93,7 +93,7 @@ Start tiller:
 `$ helm init`
 
 Make sure you have the `chartmuseum` repo with `$ helm repo list`. If not:
-`$ helm repo add chartmuseum https://charts.migrations.cnct.io`.
+`$ helm repo add chartmuseum https://charts.cnct.io`.
 
 Once `chartmuseum` is added run `$ helm repo update` for good measure. You can check you have the most current version of our chart `cluster-controller` by running `$ helm search chartmuseum`. The most current helm chart version is pinned in the `.versionfile` in this repo's home directory.
 
