@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 image:
-   name: quay.io/samsung_cnct/cluster-controller:0.1.5
+   name: quay.io/samsung_cnct/cluster-controller:0.1.6
 
   # if you develop locally, build the docker image and push to your repo
   # repository: leahnp/cluster-test:latest

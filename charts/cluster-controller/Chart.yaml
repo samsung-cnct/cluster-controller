@@ -1,4 +1,4 @@
 apiVersion: v1
 description: A Helm chart for KrakenCluster
 name: cluster-controller
-version: 0.1.5
+version: 0.1.6
